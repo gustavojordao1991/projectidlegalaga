@@ -89,3 +89,19 @@ alwaysApply: true
      2. Testes unitários e de integração: `npm run test`.
      3. Auditoria de segurança: `npm run security:audit`.
    - Somente após aprovação de testes e conformidade com `STRUCTURE.md` a branch da fase é mesclada.
+
+
+---
+
+## 6. ARQUITETURA EXTENSÍVEL E ORIENTADA A DADOS (ENDGAME-READY)
+
+6.1. **Zero Hardcoding de Conteúdo (Catálogos Dinâmicos):**
+   - É estritamente PROIBIDO fixar listas de armas, naves, pilotos, atributos, fases, cosméticos ou itens diretamente na lógica de execução do código.
+   - Todo conteúdo do jogo deve ser gerido via **Matrizes de Configuração, Arquivos de Catálogo ou JSONs tipados** desacoplados da engine (ex: `weapons.config.ts`, `ships.config.ts`, `enemies.config.ts`).
+
+6.2. **Princípio Aberto/Fechado (Open/Closed Principle):**
+   - O motor de combate, a UI e os sistemas de loadout devem ser totalmente genéricos, operando por identificadores (`id`) e contratos (`interfaces`).
+   - Adicionar novos conteúdos futuros no endgame (como 30 novas armas, novas camadas de prestígio ou naves míticas) deve exigir exclusivamente a **criação de novos registros nos arquivos de configuração**, sem a necessidade de alterar uma única linha da engine de jogo ou dos controladores de tela.
+
+6.3. **Escalabilidade de Listas e Inventários:**
+   - Componentes visuais de listagem (como o Hangar, a Loja ou a Árvore de Prestígio) devem ser renderizados de forma dinâmica com base no array de dados fornecido pelo catálogo, suportando paginação, filtros e expansão infinita nativamente.

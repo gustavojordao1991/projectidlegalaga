@@ -70,7 +70,22 @@ out/
 *.tsbuildinfo
 *.map
 
-# --- 6. FRAMEWORKS MOBILE / CLIENT (CASO APLICÁVEL) ---
+# --- 6. FRAMEWORKS MOBILE / CLIENT (EXPO & REACT NATIVE) ---
+.expo/
+.expo-shared/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+.metro/
+.metro-health-check*
+*.apk
+*.aab
+*.ipa
+*.xcarchive
 .dart_tool/
 .pub-cache/
 .pub/

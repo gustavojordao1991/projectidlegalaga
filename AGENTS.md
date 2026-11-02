@@ -24,3 +24,7 @@ Consulte `STRUCTURE.md` para o mapa estrutural vivo.
 7. **Fluxo de Trabalho por Fases:**
    - Desenvolvimento estritamente isolado em branches por fase (`feature/fase-X`).
    - Testes locais obrigatórios (`typecheck`, `test`, `security:audit`) antes do merge na `main`.
+8. **Arquitetura Extensível e Orientada a Dados (Endgame-Ready):**
+   - Zero hardcoding de listas de conteúdo (armas, naves, pilotos, atributos, fases ou itens).
+   - Uso obrigatório de catálogos e matrizes desacopladas (`weapons.config.ts`, `ships.config.ts`, `enemies.config.ts`).
+   - Open/Closed Principle: expansão de endgame via novos registros de dados por ID, com zero alterações na engine core.
