@@ -1,0 +1,91 @@
+---
+description: Governança Global, Clean Architecture, DevSecOps e Regras Universais para Antigravity e Cursor Pro
+globs: **/*
+alwaysApply: true
+---
+
+# SINGLE SOURCE OF TRUTH (SSOT) - GLOBAL GOVERNANCE & ARCHITECTURAL RULES
+# Agents: Google Antigravity (Gemini 3.8 Flash) | Cursor Pro (Claude / Grok)
+# Human Role: Tech Lead / Software Architect / DevSecOps Auditor
+# Project: Galaga Idle
+
+> Este documento estabelece as diretrizes imperativas e inegociáveis de engenharia,
+> arquitetura, governança e segurança para qualquer agente de IA ou desenvolvedor humano
+> atuando neste repositório. O descumprimento destas regras invalida qualquer contribuição.
+
+---
+
+## 1. PADRÃO ARQUITETURAL HÍBRIDO (Clean Architecture + MVC) & SINCRONIA
+
+1.1. **Fronteiras Arquiteturais Estritas:**
+   - **Domain (`backend/src/domain/`):** Entidades puras, Value Objects, interfaces de repositórios e regras de combate/idle. ZERO dependências de frameworks, ORMs ou I/O.
+   - **Application (`backend/src/application/use-cases/`):** 1 Use Case por arquivo com DTOs tipados. Orquestra a lógica de negócio dependendo exclusivamente de abstrações.
+   - **Infrastructure (`backend/src/infrastructure/`):** Implementações concretas de DB (PostgreSQL/ORM), cache (Redis), HTTP e clientes externos. Isola bibliotecas de terceiros via Adapters/Wrappers.
+   - **Presentation (`backend/src/presentation/` & `frontend/src/presentation/`):**
+     - *Backend:* Thin Controllers restritos à validação de input (Zod), despacho ao Use Case e mapeamento de status HTTP.
+     - *Frontend:* Separação estrita entre Views visuais declarativas, Controllers/Hooks de estado e Services.
+   - **Fluxo de Dependência Unidirecional:** `Presentation -> Application -> Domain <- Infrastructure`.
+
+1.2. **Protocolo de Sincronia com `STRUCTURE.md`:**
+   - O agente DEVE consultar `STRUCTURE.md` antes de criar, mover ou deletar qualquer arquivo.
+   - O agente DEVE atualizar o `STRUCTURE.md` imediatamente após qualquer alteração estrutural antes de encerrar o turno.
+
+---
+
+## 2. POLÍTICA DE TAMANHO DE ARQUIVO E MODULARIZAÇÃO (File Size Cap)
+
+2.1. **Limites de Linhas por Arquivo:**
+   - **Faixa Ideal (Sweet Spot):** Todo arquivo deve conter entre **100 e 250 linhas**.
+   - **Teto Máximo (Hard Cap):** Preferencialmente, **NENHUM arquivo deve ultrapassar 300 linhas**.
+   - **Gatilho de Refatoração Preventiva:** Ao atingir ~220 linhas, é obrigatório fatiar o código na mesma interação, extraindo Use Cases, Schemas Zod, Value Objects, Subcomponentes ou Helpers.
+
+2.2. **Proibição de Minificação Anti-Cheat:**
+   - É terminantemente PROIBIDO compactar código artificialmente (ex: juntar múltiplas declarações na mesma linha, remover quebras de linha legíveis ou reduzir identação) para burlar o limite de linhas. O fatiamento deve ser estritamente arquitetural.
+
+---
+
+## 3. ELEGÂNCIA ALGORÍTMICA, ESTRUTURAS DE DADOS E ANTI-REDUNDÂNCIA
+
+3.1. **Proibição de Cadeias Longas de `if/else` e `switch`:**
+   - Proibido escrever mais de 3 ramificações `if / else if` ou `switch / case` sequenciais.
+   - **Solução Obrigatória:** Adotar **Lookup Tables (Mapas / Dicionários / Objetos Indexados)**, **Matrizes de Decisão** ou **Strategy Pattern** executando em tempo constante $O(1)$.
+
+3.2. **Baixa Complexidade Ciclomática e Cognitiva:**
+   - Máximo de 2 níveis de indentação por método. Condições com >2 operadores lógicos devem ser nomeadas em constantes explicativas ou funções predicado.
+   - Abordagem funcional/declarativa (`map`, `filter`, `reduce`, `find`) sobre loops imperativos com acumuladores mutáveis.
+
+3.3. **Eliminação de Redundância com Generics (`<T>`):**
+   - Fluxos algorítmicos idênticos para entidades distintas devem ser abstraídos via Generics, Higher-Order Functions ou Adapters.
+   - Uso de `Set` e `Map` para buscas $O(1)$, evitando `.find()` / `.includes()` aninhados em loops ($O(n^2)$).
+
+---
+
+## 4. HIGIENE DE VERSIONAMENTO E SEGURANÇA (DevSecOps & Zero Trust)
+
+4.1. **Zero Hardcoding de Segredos:**
+   - Proibido hardcoding de credenciais, chaves, URLs sensíveis ou tokens. Tudo deve vir de variáveis de ambiente validadas na inicialização com fail-fast.
+
+4.2. **DLP & Gestão Automática do `.gitignore`:**
+   - Sempre que uma biblioteca, cache, build ou persistência local for introduzida, o agente DEVE atualizar o `.gitignore`.
+   - O `.gitignore` DEVE preservar explicitamente as pastas de governança: `!.cursor/`, `!.cursorrules`, `!.agent/`, `!AGENTS.md` e `!STRUCTURE.md`.
+
+4.3. **Sincronização Obrigatória com `.env.example`:**
+   - Toda nova variável no `.env` deve ser espelhada no `.env.example` com valores mockados seguros.
+
+4.4. **Mitigação OWASP Top 10:**
+   - Validação Zod estrita na camada de entrada, queries parametrizadas (anti-SQLi), sanitização (anti-XSS), CORS restritivo, rate limiting e proteção anti-IDOR/BOLA validando posse do recurso.
+
+---
+
+## 5. FLUXO DE TRABALHO POR FASES (Feature Branches & Auditoria)
+
+5.1. **Isolamento de Branches:**
+   - O desenvolvimento deve ocorrer estritamente em branches isoladas por fase (`feature/fase-X`), partindo da `main`.
+   - Proibido comitar alterações de novas features diretamente na branch `main`.
+
+5.2. **Testes Locais Pré-Merge:**
+   - Antes de qualquer merge para a `main`, devem ser executados localmente:
+     1. Checagem de tipos estrita: `npm run typecheck` (`tsc --noEmit`).
+     2. Testes unitários e de integração: `npm run test`.
+     3. Auditoria de segurança: `npm run security:audit`.
+   - Somente após aprovação de testes e conformidade com `STRUCTURE.md` a branch da fase é mesclada.

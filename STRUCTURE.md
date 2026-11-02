@@ -90,8 +90,8 @@ galagaidle/
 │           └── SKILL.md               # Skill nativa do Antigravity para upgrade seguro de dependências
 ├── .cursor/
 │   └── rules/
-│       ├── core-governance.mdc        # Regras de governança no formato Cursor MDC
-│       └── dep-guard.mdc              # Regra espelho do Cursor para upgrade seguro de dependências
+│       ├── dep-guard.mdc              # Regra espelho do Cursor para upgrade seguro de dependências
+│       └── global-governance.mdc      # Regras de governança no formato Cursor MDC
 ├── .cursorrules                       # Regras universais compartilhadas (Cursor + Antigravity)
 ├── .gitignore                         # Higiene de repositório e prevenção de vazamentos (DLP)
 ├── AGENTS.md                          # Regras nativas de workspace para Antigravity
@@ -143,7 +143,7 @@ galagaidle/
 | Caminho do Arquivo | Camada / Módulo | Responsabilidade Exata | Status |
 | :--- | :--- | :--- | :--- |
 | `.cursorrules` | Governança | Regras universais de engenharia, arquitetura e segurança | Ativo |
-| `.cursor/rules/core-governance.mdc` | Governança | Espelho estruturado das regras de governança para o Cursor | Ativo |
+| `.cursor/rules/global-governance.mdc` | Governança | Espelho estruturado das regras globais de governança para o Cursor | Ativo |
 | `.cursor/rules/dep-guard.mdc` | Governança / Cursor | Espelho da skill dep-guard para o ecossistema Cursor Pro | Ativo |
 | `.agent/skills/dep-guard/SKILL.md` | Skill / Antigravity | Protocolo interativo de 3 etapas para upgrade seguro de dependências | Ativo |
 | `.gitignore` | Segurança / DLP | Política de higiene de repositório e prevenção de vazamento de segredos | Ativo |

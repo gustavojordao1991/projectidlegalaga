@@ -49,14 +49,15 @@ Ao final do relatório, o agente emite a seguinte pergunta:
 
 ---
 
-### 🚀 ETAPA 3: DECISÃO E APLICAÇÃO CONTROLADA (ZERO-BREAKAGE)
-Somente após aprovação explícita do usuário:
-1. **Atualização Segura de Manifesto:** Atualizar a versão no manifesto (`package.json`, etc.).
-2. **Implementação de Adapter/Wrapper:** Confinar as mudanças na camada de `infrastructure/`, preservando integralmente os contratos e interfaces de `domain/` e `application/`.
-3. **Verificação de Compilação & Testes:** Rodar validação estrita de tipos (`tsc --noEmit`) e testes unitários para garantir zero regressão.
-4. **Sincronia de Governança (DLP & STRUCTURE.md):**
-   - Verificar se novos caches ou artefatos gerados foram incluídos no `.gitignore`.
-   - Se novos adapters/arquivos foram criados, registrá-los imediatamente no `STRUCTURE.md`.
+### 🚀 ETAPA 3: EXECUÇÃO CONTROLADA OU ABORTO (ZERO-BREAKAGE)
+- Se o usuário rejeitar ("Não", "Abortar"): O agente cancela a operação imediatamente sem tocar em nenhum arquivo.
+- Somente se autorizado ("Sim", "Aplicar", "Pode atualizar"):
+  1. **Atualização Segura de Manifesto:** Atualizar a versão no manifesto (`package.json`, etc.).
+  2. **Implementação de Adapter/Wrapper:** Confinar as mudanças na camada de `infrastructure/`, preservando integralmente os contratos e interfaces de `domain/` e `application/` e respeitando estritamente o limite de 250–300 linhas por arquivo.
+  3. **Verificação de Compilação & Testes:** Rodar validação estrita de tipos (`tsc --noEmit`) e testes unitários para garantir zero regressão.
+  4. **Sincronia de Governança (DLP & STRUCTURE.md):**
+     - Verificar se novos caches ou artefatos gerados foram incluídos no `.gitignore`.
+     - Se novos adapters/arquivos foram criados, registrá-los imediatamente no `STRUCTURE.md`.
 
 ---
 
