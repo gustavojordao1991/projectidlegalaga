@@ -1,0 +1,113 @@
+# ==============================================================================
+# GALAGA IDLE - REPOSITORY HYGIENE & DATA LOSS PREVENTION (.gitignore)
+# Single Source of Truth for Zero-Leak Policy (Antigravity & Cursor)
+# ==============================================================================
+
+# --- 1. CREDENCIAIS, SEGREDOS E CERTIFICADOS (ZERO LEAK POLICY) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.keystore
+*.jks
+service-account*.json
+google-services.json
+GoogleService-Info.plist
+firebase-debug.log*
+*.cert
+*.crt
+secrets.json
+
+# --- 2. BANCOS DE DADOS LOCAIS, DUMPS E PERSISTÊNCIA ---
+*.db
+*.sqlite
+*.sqlite3
+*.isar
+*.hive
+*.realm
+*.sql
+*.dump
+postgres-data/
+redis-data/
+mongo-data/
+*.localstorage
+
+# --- 3. LOGS, DIAGNÓSTICOS E RELATÓRIOS ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+crashlytics*
+coverage/
+.nyc_output/
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# --- 4. DEPENDÊNCIAS, PACOTES E CACHES DE GERENCIADORES ---
+node_modules/
+jspm_packages/
+.pnp/
+.pnp.js
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# --- 5. BUILDS, ARTEFATOS E COMPILAÇÃO ---
+dist/
+build/
+out/
+.next/
+.nuxt/
+.astro/
+.cache/
+.parcel-cache/
+.turbo/
+*.tsbuildinfo
+*.map
+
+# --- 6. FRAMEWORKS MOBILE / CLIENT (CASO APLICÁVEL) ---
+.dart_tool/
+.pub-cache/
+.pub/
+ios/Pods/
+android/.gradle/
+android/app/build/
+ios/build/
+
+# --- 7. DEPLOYMENT & CLOUD HOSTING LOCAL CACHES ---
+.vercel/
+.netlify/
+.serverless/
+.terraform/
+*.tfstate*
+
+# --- 8. ARQUIVOS DO SISTEMA OPERACIONAL & AMBIENTE DE DESENVOLVEDOR ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# --- 9. IDES & EDITORES (PRESERVA APENAS CONFIGURAÇÕES DE EQUIPE) ---
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# --- 10. DIRETÓRIOS TEMPORÁRIOS E SCRATCH ---
+tmp/
+temp/
+scratch/

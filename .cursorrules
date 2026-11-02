@@ -1,0 +1,203 @@
+# ==============================================================================
+# SINGLE SOURCE OF TRUTH (SSOT) - CORE GOVERNANCE & ARCHITECTURAL RULES
+# Agents: Google Antigravity (Gemini 3.8 Flash) | Cursor Pro (Claude / Grok)
+# Human Role: Tech Lead / Software Architect / DevSecOps Auditor
+# Project: Galaga Idle
+# ==============================================================================
+
+> Este documento estabelece as diretrizes imperativas e inegociáveis de engenharia,
+> arquitetura, governança e segurança para qualquer agente de IA ou desenvolvedor humano
+> atuando neste repositório. O descumprimento destas regras invalida qualquer contribuição.
+
+---
+
+## 1. PROTOCOLO DE SINCRONIA OBRIGATÓRIA (Antigravity + Cursor)
+
+1.1. **Leitura Prévia Obrigatória:**
+   - Antes de criar, mover, renomear ou deletar qualquer arquivo, o agente DEVE consultar o arquivo `STRUCTURE.md` na raiz do projeto para validar o alinhamento arquitetural.
+
+1.2. **Atualização Atômica do Mapa Estrutural:**
+   - Imediatamente após qualquer alteração estrutural (novo módulo, rota, controller, entidade, use case, serviço, modelo ou migração), o agente DEVE atualizar o `STRUCTURE.md` antes de finalizar a resposta ao usuário. Nenhuma modificação de estrutura pode existir sem registro explícito no mapa.
+
+1.3. **Antipadrão Monolítico Proibido ("God Files"):**
+   - É terminantemente proibido gerar arquivos monolíticos que acumulem múltiplas responsabilidades.
+   - Cada arquivo deve conter apenas uma classe, interface ou conjunto estritamente coeso de funções. Separe rotas, validações, controllers, casos de uso e repositórios em arquivos distintos.
+
+1.4. **Coexistência Harmônica e Preservação de Padrões:**
+   - Antigravity e Cursor atuam em paridade técnica. Nenhum agente deve reescrever arbitrariamente estruturas ou convenções estabelecidas pelo outro, a menos que haja violação direta das regras deste documento.
+
+---
+
+## 2. PADRÃO ARQUITETURAL HÍBRIDO (Clean Architecture + MVC)
+
+O sistema segue a estrita separação de camadas da Clean Architecture combinada com a entrega MVC desacoplada. A dependência flui sempre de fora para dentro: **Presentation -> Application -> Domain <- Infrastructure**.
+
+### 2.1. Domain Layer (Core do Negócio)
+- **Localização:** `backend/src/domain/` (e regras de simulação pura em `frontend/src/core/`)
+- **Responsabilidade:** Entidades puras, Value Objects, Agregados, Interfaces de Repositório e Erros de Domínio.
+- **Regra Inegociável:** ZERO dependência de frameworks (Express, Fastify, Nest, React), ORMs (Prisma, TypeORM, Drizzle) ou I/O externo.
+- **Auditoria:** Toda a lógica de negócio essencial deve ser executável e testável puramente em memória.
+
+### 2.2. Application Layer (Casos de Uso & Orquestração)
+- **Localização:** `backend/src/application/use-cases/`
+- **Responsabilidade:** Orquestração do fluxo de dados e execução das regras do Domínio.
+- **Conteúdo:** Use Cases (Interactors), DTOs (Data Transfer Objects) tipados de entrada/saída e interfaces de serviços externos (Gateways de pagamento, disparadores de evento, hashing, etc.).
+- **Regra Inegociável:** Um Use Case não conhece protocolo HTTP, banco de dados específico ou renderização visual. Um caso de uso = uma ação do sistema (SRP).
+
+### 2.3. Infrastructure Layer (Implementações Concretas & I/O)
+- **Localização:** `backend/src/infrastructure/`
+- **Responsabilidade:** Conexões concretas com banco de dados, repositórios persistentes, clientes HTTP externos, brokers de mensagens, cache (Redis) e adaptadores de SO.
+- **Regra Inegociável:** A infraestrutura implementa as interfaces abstratas declaradas no Domain ou Application. A substituição de uma tecnologia de infraestrutura não deve alterar uma única linha de código do Domínio.
+
+### 2.4. Presentation / Delivery Layer (MVC Desacoplado)
+- **Backend (`backend/src/presentation/`):**
+  - **Controllers:** Enxutos ("Thin Controllers"). Limitam-se a receber o request, acionar a validação do schema, chamar o Use Case correspondente e serializar a resposta com o status HTTP adequado. Proibido conter lógica de negócio.
+  - **Routes & Middlewares:** Definição de endpoints, autenticação JWT, autorização RBAC, rate-limiting, compressão e captura global de erros.
+- **Frontend (`frontend/src/presentation/`):**
+  - **Views:** Componentes de UI puramente declarativos. Proibido disparar queries diretas ou orquestrar regras de cálculo idle pesadas diretamente no JSX/render.
+  - **Controllers / ViewModels:** Hooks customizados, stores centralizadas (Zustand, Redux) que gerenciam estado de tela e conectam a View aos Services.
+  - **Services / API Clients:** Clientes HTTP tipados consumindo contratos compartilhados.
+
+---
+
+## 3. BOAS PRÁTICAS DE CODIFICAÇÃO & QUALIDADE (Audit-Ready Code)
+
+3.1. **Tipagem Estrita (Zero-Any Policy):**
+   - Proibido o uso de `any`, `unknown` não tipado ou casting forçado indiscriminado (`as any`).
+   - Todos os parâmetros, retornos de funções, payloads, DTOs e eventos devem ter tipagem estrita explícita.
+   - As diretivas `strict: true` e `noImplicitAny: true` do TypeScript são mandatórias.
+
+3.2. **Princípios SOLID & DRY Sem Abstração Prematura:**
+   - Single Responsibility Principle (SRP) aplicado a nível de método e módulo.
+   - Nomenclatura semântica em inglês técnico (ex: `CalculateIdleYieldUseCase`, `ShipUpgradeEntity`).
+   - Evitar duplicação desnecessária, mas priorizar código legível e auditável antes de criar metaprogramação obscura.
+
+3.3. **Early Return & Controle de Fluxo Limpo:**
+   - Proibido o aninhamento profundo de blocos condicionais (`if/else` em cascata ou níveis de indentação superiores a 2).
+   - Uso obrigatório de Guard Clauses (Early Return) para tratar erros, pré-condições e casos de borda imediatamente no topo da função.
+
+3.4. **Tratamento Previsível de Erros (Predictable Error Handling):**
+   - Erros de negócio devem herdar de uma classe base (`DomainError`, `ApplicationError`, `NotFoundError`, `UnauthorizedError`).
+   - Proibido silenciar blocos catch (`catch (e) {}`).
+   - Todos os erros inesperados devem ser capturados centralmente por middlewares de exceção, gerando identificador de correlação (`correlationId` / `requestId`) sem vazar stack trace ao cliente.
+
+3.5. **Proibição Absoluta de Placeholders e 'Lazy Vibecoding':**
+   - Proibido gerar código com marcações como `// TODO: implementar depois`, `// resto do código aqui`, `// adicione a lógica`.
+   - Toda implementação deve ser entregue funcional, sintaticamente válida e completa. Caso um escopo seja vasto, implemente o bloco completo atual e estruture os próximos módulos no `STRUCTURE.md`.
+
+---
+
+## 4. DIRETRIZES DE SEGURANÇA (Security-First & Zero Trust)
+
+4.1. **Validação e Sanitização em Camada de Borda (Schema-First):**
+   - 100% dos dados de entrada (Body, Query, Params, Headers, Cookies, WebSockets) DEVEM ser validados contra schemas estritos (ex: Zod, Joi) antes de atingir qualquer Use Case.
+   - Configurar o validador para rejeitar ou descartar automaticamente campos desconhecidos (`stripUnknown` ou `strict()`) contra poluição de protótipo e mass assignment.
+
+4.2. **Proteção de Segredos e Gestão de Variáveis de Ambiente:**
+   - Proibido hardcoding de senhas, secrets JWT, chaves de API, credenciais de banco ou URLs confidenciais.
+   - Todas as variáveis de ambiente devem ser declaradas no `.env.example` e validadas na inicialização do serviço com fail-fast (a aplicação não sobe se faltar uma variável crítica).
+
+4.3. **Mitigação Ativa do OWASP Top 10:**
+   - **Anti-SQL/NoSQL Injection:** Uso compulsório de queries parametrizadas / ORM seguro. Concatenação de strings em queries de banco é estritamente proibida.
+   - **Anti-XSS:** Sanitização em renderização frontend, ativação de headers de proteção (`Content-Security-Policy`, `X-Content-Type-Options: nosniff`).
+   - **Anti-IDOR / BOLA:** Toda operação de leitura, alteração ou exclusão de recurso DEVE validar em nível de Use Case se o usuário autenticado é o real proprietário do recurso solicitado.
+   - **Rate Limiting & CORS:** Rate limiting configurado em rotas de autenticação e rotas públicas de alto custo de computação. CORS com origens explicitamente restritas (proibido `origin: *` em produção).
+
+4.4. **Logs Seguros & Conformidade com Privacidade (LGPD / GDPR):**
+   - Proibido registrar em logs de console ou arquivos: credenciais, senhas, tokens de autenticação, números de cartão ou Dados Pessoais Sensíveis (PII).
+   - Sanitização de logs obrigatória em middlewares de auditoria.
+
+---
+
+## 5. PROTOCOLO DE SEGURANÇA DE VERSIONAMENTO (.gitignore & Secrets Management)
+
+5.1. **Gatilho Automático de Atualização do `.gitignore`:**
+   - Sempre que qualquer agente (Antigravity ou Cursor) instalar uma nova biblioteca/dependência, configurar um SDK externo, criar um arquivo de configuração local, gerar arquivos de build/cache ou introduzir qualquer dado sensível, ele DEVE verificar e atualizar o `.gitignore` **antes** de encerrar a resposta.
+
+5.2. **Proibição Estrita de Rastreamento Sensível (Zero Leak Policy):**
+   - **Credenciais e Certificados:** Arquivos `.env*` (exceto `.env.example`), chaves privadas (`*.pem`, `*.key`, `*.p12`, `*.keystore`, `*.jks`), arquivos de configuração do Firebase/Google Cloud (`google-services.json`, `GoogleService-Info.plist`, `service-account*.json`).
+   - **Bancos de Dados Locais & Dumps:** Arquivos de persistência local ou cache de desenvolvimento (`*.db`, `*.sqlite`, `*.sqlite3`, `*.isar`, `*.hive`, `*.realm`, `*.sql`, `*.dump`, pastas de volume de containers locais).
+   - **Logs e Diagnósticos:** Qualquer arquivo de log ou relatório de erro (`*.log`, `npm-debug.log*`, `yarn-error.log*`, `pnpm-debug.log*`, `crashlytics*`, relatórios de cobertura `/coverage/`).
+   - **Dependências, Builds e Artefatos:** Diretórios de pacotes e compilação (`node_modules/`, `.next/`, `dist/`, `build/`, `.dart_tool/`, `.pub-cache/`, `ios/Pods/`, `android/.gradle/`, `.vercel/`, `.netlify/`).
+   - **Arquivos de Ambiente/IDE Locais:** Caches locais que não façam parte de configurações canônicas da equipe (`.DS_Store`, `Thumbs.db`, `.idea/`, `*.swp`, `.vscode/settings.json` locais).
+
+5.3. **Sincronia Obrigatória com `.env.example`:**
+   - Toda vez que uma nova variável for introduzida no arquivo `.env` local (bloqueado pelo `.gitignore`), o agente é OBRIGADO a declarar a chave correspondente no arquivo `.env.example` com um valor fictício seguro (ex: `DATABASE_URL="postgresql://user:password@localhost:5432/dbname"`), mantendo a documentação viva sem expor o segredo real.
+
+5.4. **Auditoria Pré-Resposta:**
+   - Ao final de qualquer geração de código ou intervenção que envolva novos pacotes, arquivos locais ou variáveis de ambiente, o agente deve incluir um aviso explícito de auditoria no resumo confirmando a conformidade com o `.gitignore` e a sincronização do `.env.example`.
+
+---
+
+## 6. POLÍTICA DE TAMANHO DE ARQUIVO E MODULARIZAÇÃO CONTÍNUA (File Size Cap)
+
+6.1. **Limites de Linhas por Arquivo (Hard & Soft Cap):**
+   - **Faixa Ideal (Sweet Spot):** Todo arquivo de código deve ter entre **100 e 250 linhas**.
+   - **Teto Máximo (Hard Cap):** Preferencialmente, **NENHUM arquivo deve ultrapassar 300 linhas**. Arquivos acima desse limite representam dívida técnica e fragmentação de contexto para as IAs.
+   - **Gatilho de Refatoração Preventiva:** Se um arquivo existente já estiver com ~220 linhas e uma nova funcionalidade for solicitada, o agente NÃO deve empilhar código até romper o teto. Ele DEVE refatorar proativamente, extraindo módulos e responsabilidades na mesma interação.
+
+6.2. **Estratégias Obrigatórias de Decomposição Arquitetural:**
+   Caso a implementação de um domínio ou componente se aproxime de 250–300 linhas, o agente é OBRIGADO a fatiar o código respeitando a Clean Architecture + MVC:
+   - **Rotas (Routes):** Proibido arquivo único de rotas para toda a aplicação. Divida por recurso/domínio (ex: `player.routes.ts`, `ship.routes.ts`, `battle.routes.ts`, `auth.routes.ts`) e utilize um `routes/index.ts` apenas para agregar e registrar os roteadores.
+   - **Controllers:** Adote o padrão *Single-Action Controller* (1 ação por arquivo, ex: `CalculateIdleYieldController.ts`) ou *Resource Controller enxuto* (máximo 4 métodos CRUD básicos delegando imediatamente). Schemas de validação Zod NUNCA devem poluir o arquivo do controller: extraia-os para arquivos de schema dedicados (ex: `auth.schema.ts`, `ship-upgrade.schema.ts`).
+   - **Casos de Uso (Use Cases):** Estritamente 1 Use Case por arquivo (SRP absoluto). O use case deve conter apenas sua interface de input/output (ou DTO dedicado) e a orquestração da regra de negócio (ex: `UpgradeShipUseCase.ts`). Proibido agrupar múltiplos use cases em classes de serviço genéricas.
+   - **Entidades e Domínio (Domain):** Entidades complexas devem ser decompostas em Value Objects especializados em arquivos próprios (ex: `Currency.vo.ts`, `ShipAttributes.vo.ts`, `CombatStats.vo.ts`).
+   - **Views e Telas (Frontend):** Proibido telas monolíticas com centenas de linhas de JSX. Decomponha em componentes atômicos e sub-painéis (ex: `ShipUpgradeModal.tsx` dividido em `ShipUpgradeList.tsx`, `ShipStatsComparison.tsx`, `UpgradePriceButton.tsx`).
+   - **Estado e Lógica de Tela (Controllers/Hooks):** Nunca misture gerenciamento de estado complexo diretamente no componente visual. Extraia hooks customizados (ex: `useShipUpgrades.ts`, `useOfflineProgress.ts`) e stores dedicadas por domínio.
+   - **Utilitários e Helpers:** Proibido o antipadrão da "lixeira de funções" (`utils.ts` com centenas de linhas de funções desconexas). Crie utilitários semânticos e autocontidos (ex: `idle-math.util.ts`, `currency-formatter.util.ts`, `jwt-token.util.ts`).
+
+---
+
+## 7. DIRETRIZES PARA AUDITORIA E REFATORAÇÃO HUMANA (Anti-Fragile Code)
+
+7.1. **Prevenção Estrita de Dependências Circulares:**
+   - Ao modularizar o código, é terminantemente PROIBIDO criar referências circulares (`Arquivo A <-> Arquivo B`).
+   - Se dois módulos ou Use Cases do mesmo nível precisarem compartilhar lógica, contratos ou tipos, extraia a dependência comum para uma camada inferior (`domain/types`, `domain/value-objects` ou `shared/`).
+
+7.2. **Inversão de Dependência e Código Plug-and-Play:**
+   - Use Cases e entidades de domínio NUNCA devem instanciar diretamente bibliotecas de terceiros, clientes de banco, drivers HTTP ou brokers de mensageria no corpo da regra.
+   - Utilize Injeção de Dependência (via construtor ou factory) sempre baseada em Interfaces/Contratos (`Ports & Adapters`). Isso garante que componentes de infraestrutura possam ser substituídos ou mockados em testes unitários sem alterar uma única linha de regra de negócio.
+
+7.3. **Zero Magic Numbers e Magic Strings:**
+   - Proibido o uso de valores literais soltos na lógica de negócio (ex: `role === 2`, `interval = 3600000`, `status === 'active'`).
+   - Todos os literais devem ser extraídos para `Enums`, objetos literais tipados com `as const` ou constantes semânticas em maiúsculas (ex: `PLAYER_ROLES.ADMIN`, `IDLE_TICK_INTERVAL_MS`) alocadas em arquivos de constantes específicos.
+
+7.4. **Documentação de Intenção (Por que > O que):**
+   - **Proibição de Comentários Óbvios:** Proibido narrar o que o código já expressa (ex: `// incrementa o contador`, `// retorna o usuário`).
+   - **Documentação Obrigatória (JSDoc / Docstring):**
+     a) Contratos públicos de Use Cases, interfaces de repositórios e serviços de domínio complexos.
+     b) Fórmulas matemáticas de balanceamento idle, restrições não intuitivas de segurança ou limites de anti-cheat.
+     c) Workarounds técnicos exigidos por limitações de libs externas, demarcados com as tags `// NOTE:` ou `// SECURITY:`.
+
+7.5. **Imutabilidade e Funções Puras por Padrão:**
+   - Adote variáveis imutáveis (`const`, `readonly`, `ReadonlyArray`) e funções puras (mesma entrada = mesma saída, sem efeitos colaterais ocultos) em todas as camadas de cálculo e domínio.
+   - Proibido mutar diretamente objetos ou arrays recebidos por parâmetro; retorne novas instâncias ou cópias profundas/rasas para prevenir efeitos colaterais e mutações fantasmas.
+
+7.6. **Rastreabilidade de Erros (Debug-Friendly):**
+   - Todo erro lançado ou tratado deve carregar o contexto de origem explícito (ex: `[CalculateIdleGainsUseCase] Timestamp de claim inválido ou futuro`) e utilizar classes de erro tipadas (`DomainError`, `ApplicationError`, `ValidationError`).
+   - Essa rastreabilidade permite localização imediata do módulo pelo desenvolvedor durante auditorias manuais.
+
+---
+
+## 8. ELEGÂNCIA ALGORÍTMICA, ESTRUTURAS DE DADOS E ANTI-REDUNDÂNCIA
+
+8.1. **Proibição de Cadeias de `if/else` e `switch` Longos (Data-Driven Logic):**
+   - É estritamente PROIBIDO escrever mais de 3 ramificações `if / else if` ou `switch / case` sequenciais para mapear valores, rotas, permissões, cálculos ou comportamentos.
+   - **Solução Obrigatória:** Substitua ramificações condicionais por **Lookup Tables (Mapas / Dicionários / Objetos Indexados)**, **Matrizes de Decisão** ou pelo **Strategy Pattern** executando em tempo constante $O(1)$.
+   - *Exemplo:* Em vez de encadear checagens de status, utilize mapas indexados tipados `const STATUS_HANDLERS: Record<Status, (ctx: Context) => Result> = { ... }` com despacho direto por chave.
+
+8.2. **Baixa Complexidade Ciclomática e Cognitiva (Object Calisthenics):**
+   - **Máximo de 2 níveis de indentação** por função ou método.
+   - Condições booleanas com mais de 2 operadores lógicos (`&&`, `||`) DEVEM ser extraídas para variáveis constantes semânticas explicativas antes da cláusula de guarda ou decompostas em funções predicado dedicadas (ex: `isEligibleForOfflineGains(player)`).
+   - Loops com lógica condicional aninhada devem ter o corpo ou predicado extraído para funções auxiliares puras.
+
+8.3. **Abordagem Declarativa e Funcional sobre Imperativa:**
+   - Evite loops imperativos (`for`, `while`, `forEach`) que acumulem estado mutável em variáveis externas (`let accumulator = []`).
+   - Prefira transformações de dados declarativas, imutáveis e encadeadas (`map`, `filter`, `reduce`, `find`, `some`, `every`, `flatMap`).
+
+8.4. **Eliminação de Redundância Estrutural (DRY Avançado & Generics):**
+   - A regra DRY se estende a fluxos algorítmicos idênticos operando sobre entidades ou tipos distintos.
+   - Quando duas ou mais funções executarem a mesma sequência lógica (ex: buscar, validar, transformar, auditar e persistir), abstraia o comportamento utilizando **Generics (`<T>`)**, **Higher-Order Functions (HOFs)**, **Adapters** ou **Middlewares/Decorators**.
+
+8.5. **Eficiência de Estruturas de Dados ($O(1)$ vs $O(n)$):**
+   - Para buscas frequentes de existência, deduplicação ou cruzamento de conjuntos de dados, utilize `Set` e `Map` (busca em tempo constante $O(1)$), banindo o uso de `.includes()` ou `.find()` aninhados em loops de arrays que degradam para complexidade quadrática $O(n^2)$.
