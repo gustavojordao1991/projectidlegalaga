@@ -128,6 +128,33 @@ Abaixo está o roteiro arquitetural mapeando as camadas em todas as 10 fases:
 | `tests/domain/math.test.ts` | Testes / Domain | Testes unitários do motor BigNumber e formatador de notações | Ativo (Fase 1) |
 | `tests/domain/wallet.test.ts` | Testes / Domain | Testes unitários da Carteira, saldos, saques e prestígios | Ativo (Fase 1) |
 | `tests/application/loop.test.ts` | Testes / Application | Testes unitários do TickEngine duplo e calculadora offline | Ativo (Fase 1) |
+| `domain/combat/combat-types.ts` | Domain / Combat | Tipos, vetores 2D e contratos de armas e chassis de naves | Ativo (Fase 2) |
+| `domain/combat/weapons.config.ts` | Domain / Combat | Catálogo desacoplado de armas (9 padrões, cadência e knockback) | Ativo (Fase 2) |
+| `domain/combat/ships.config.ts` | Domain / Combat | Catálogo desacoplado de modelos de chassi e atributos de nave | Ativo (Fase 2) |
+| `domain/combat/projectile.ts` | Domain / Combat | Entidade de projétil gerenciada por Object Pooling para zero GC | Ativo (Fase 2) |
+| `domain/combat/projectile-pool.ts` | Domain / Combat | Object Pool de projéteis e fábrica dinâmica de disparo por padrão | Ativo (Fase 2) |
+| `domain/combat/ship.ts` | Domain / Combat | Entidade da nave do jogador (vida, escudo, tiro e movimentação) | Ativo (Fase 2) |
+| `domain/combat/index.ts` | Domain / Combat | Ponto de exportação barrel do módulo de combate | Ativo (Fase 2) |
+| `domain/ai/auto-play-fuel.ts` | Domain / AI | Gerenciador de saldo de Auto-Play (3h cap, 10 ads diários, VIP) | Ativo (Fase 2) |
+| `domain/ai/tactical-pilot-ai.ts` | Domain / AI | IA tática heurística de mira prioritária e esquiva de ameaças | Ativo (Fase 2) |
+| `domain/ai/index.ts` | Domain / AI | Ponto de exportação barrel do módulo de inteligência artificial | Ativo (Fase 2) |
+| `domain/waves/enemies.config.ts` | Domain / Waves | Catálogo desacoplado de arquétipos de alienígenas e chefes | Ativo (Fase 2) |
+| `domain/waves/enemy.ts` | Domain / Waves | Entidade alienígena Galaga com física de knockback por Sonic Wave | Ativo (Fase 2) |
+| `domain/waves/formation-matrix.ts` | Domain / Waves | Matriz de formação de enxame, oscilação senoidal e curvas Bézier | Ativo (Fase 2) |
+| `domain/waves/wave-spawner.ts` | Domain / Waves | Spawner determinístico de ondas com chefes a cada 10 fases | Ativo (Fase 2) |
+| `domain/waves/index.ts` | Domain / Waves | Ponto de exportação barrel do módulo de ondas | Ativo (Fase 2) |
+| `domain/instage/instage-evolution.ts` | Domain / InStage | Sistema de evolução temporária e cristais da corrida atual | Ativo (Fase 2) |
+| `domain/instage/index.ts` | Domain / InStage | Ponto de exportação barrel do módulo in-stage | Ativo (Fase 2) |
+| `domain/idle/idle-income-formula.ts` | Domain / Idle | Fórmulas exponenciais de ganhos idle e prestígio por onda | Ativo (Fase 2) |
+| `domain/idle/index.ts` | Domain / Idle | Ponto de exportação barrel do módulo de economia idle | Ativo (Fase 2) |
+| `application/combat/wave-progression-manager.ts` | Application / Combat | Gerenciador de avanço automático vs. farm e recuo inteligente | Ativo (Fase 2) |
+| `application/combat/combat-session.ts` | Application / Combat | Orquestrador da sessão de combate 60 FPS e tratamento de colisões | Ativo (Fase 2) |
+| `application/combat/index.ts` | Application / Combat | Ponto de exportação barrel da orquestração de combate | Ativo (Fase 2) |
+| `tests/domain/combat.test.ts` | Testes / Domain | Testes unitários de combate, pooling e catálogo de armas | Ativo (Fase 2) |
+| `tests/domain/ai.test.ts` | Testes / Domain | Testes unitários de combustível de Auto-Play e IA tática | Ativo (Fase 2) |
+| `tests/domain/waves.test.ts` | Testes / Domain | Testes unitários do spawner, boss a cada 10 waves e knockback | Ativo (Fase 2) |
+| `tests/domain/instage.test.ts` | Testes / Domain | Testes unitários da evolução in-stage e consumo de cristais | Ativo (Fase 2) |
+| `tests/application/combat-session.test.ts` | Testes / Application | Testes unitários da sessão de combate 60 FPS e progressão | Ativo (Fase 2) |
 
 ---
 
